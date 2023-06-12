@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/filesAndFoldersFragment">
+
+    <fragment
+        android:id="@+id/filesAndFoldersFragment"
+        android:name="com.hifnawy.bootanimationplayer.UI.Fragments.FilesAndFoldersFragment"
+        android:label="Files and Folders"
+        tools:layout="@layout/fragment_files_and_folders">
+
+        <action
+            android:id="@+id/actionToProcessingSketch"
+            app:destination="@id/processingSketchFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/processingSketchFragment"
+        android:name="com.hifnawy.bootanimationplayer.UI.Fragments.ProcessingSketchFragment"
+        android:label="Animation"
+        tools:layout="@layout/fragment_processing_sketch">
+
+        <action
+            android:id="@+id/actionToFilesAndFolders"
+            app:destination="@id/filesAndFoldersFragment" />
+    </fragment>
+</navigation>

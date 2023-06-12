@@ -10,23 +10,18 @@ import java.text.DecimalFormat
 class Sketch
 constructor() : PApplet() {
     private lateinit var zipFile: File
+    private var animationWidth = 0
+    private var animationHeight = 0
+    private var animationFrameRate = 0
+    private var animationFrameTime = 0
+    private var animationXOffset = 0f
+    private var animationYOffset = 0f
+    private var descWidth = 0
+    private var descHeight = 0
 
-    internal enum class TextAlignment {
-        LEFT, RIGHT, CENTER
-    }
-
-    var animationWidth = 0
-    var animationHeight = 0
-    var animationFrameRate = 0
-    var animationFrameTime = 0
-    var animationXOffset = 0f
-    var animationYOffset = 0f
-    var descWidth = 0
-    var descHeight = 0
-
-    var partIndex = 0
-    var partImageIndex = 0
-    var images: ArrayList<ArrayList<PImage>> = ArrayList()
+    private var partIndex = 0
+    private var partImageIndex = 0
+    private var images: ArrayList<ArrayList<PImage>> = ArrayList()
 
     constructor(zipFile: File) : this() {
         this.zipFile = zipFile
@@ -133,5 +128,9 @@ constructor() : PApplet() {
             TextAlignment.RIGHT -> text(text, displayWidth - textWidth - x, y)
             TextAlignment.CENTER -> text(text, x + displayWidth / 2 - textWidth / 2 - x, y)
         }
+    }
+
+    internal enum class TextAlignment {
+        LEFT, RIGHT, CENTER
     }
 }
