@@ -9,7 +9,7 @@ import java.text.DecimalFormat
 
 class Sketch
 constructor() : PApplet() {
-    private lateinit var zipFiles: ArrayList<File>
+    private lateinit var zipFile: File
 
     internal enum class TextAlignment {
         LEFT, RIGHT, CENTER
@@ -28,18 +28,17 @@ constructor() : PApplet() {
     var partImageIndex = 0
     var images: ArrayList<ArrayList<PImage>> = ArrayList()
 
-    constructor(zipFiles: ArrayList<File>) : this() {
-        this.zipFiles = zipFiles
+    constructor(zipFile: File) : this() {
+        this.zipFile = zipFile
     }
 
     override fun settings() {
-        val zipFile = ZipFile(zipFiles[0].path)
-        val animationData =
-            File(zipFiles[0].absolutePath.replace(".${zipFiles[0].extension}", ""))
+        val unzipFile = ZipFile(zipFile.path)
+        val animationData = File(zipFile.absolutePath.replace(".${zipFile.extension}", ""))
 
         if (!animationData.exists()) {
             animationData.mkdir()
-            zipFile.extractAll(animationData.absolutePath)
+            unzipFile.extractAll(animationData.absolutePath)
         }
 
         val descFile = File("${animationData.absolutePath}/desc.txt")
@@ -63,7 +62,7 @@ constructor() : PApplet() {
     }
 
     override fun setup() {
-        val animationData = File(zipFiles[0].absolutePath.replace(".${zipFiles[0].extension}", ""))
+        val animationData = File(zipFile.absolutePath.replace(".${zipFile.extension}", ""))
 
         animationData.listFiles()!!.forEach { file ->
             if (file.isDirectory) {
@@ -73,11 +72,12 @@ constructor() : PApplet() {
                     if (partFile.extension == "png") {
                         val scaleX = descWidth * 1.0f / animationWidth
                         val scaleY = descHeight * 1.0f / animationHeight
-                        var partImage = loadImage(partFile.absolutePath)
+
+                        val partImage = loadImage(partFile.path)
                         partImage.resize(
-                            (partImage.width / scaleX).toInt(),
-                            (partImage.height / scaleY).toInt()
-                        );
+                            (partImage.width / scaleX).toInt(), (partImage.height / scaleY).toInt()
+                        )
+
                         partImages.add(partImage)
                     }
                 }
@@ -121,13 +121,17 @@ constructor() : PApplet() {
         loop()
     }
 
-    private fun text(text: String, x: Float, y: Float, alignment: TextAlignment) {
+    private fun text(
+        text: String,
+        @Suppress("SameParameterValue") x: Float,
+        y: Float,
+        @Suppress("SameParameterValue") alignment: TextAlignment
+    ) {
         val textWidth = textWidth(text)
         when (alignment) {
             TextAlignment.LEFT -> text(text, x, y)
             TextAlignment.RIGHT -> text(text, displayWidth - textWidth - x, y)
             TextAlignment.CENTER -> text(text, x + displayWidth / 2 - textWidth / 2 - x, y)
-            else -> {}
         }
     }
 }

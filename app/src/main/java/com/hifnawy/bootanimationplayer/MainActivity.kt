@@ -11,24 +11,22 @@ import android.provider.DocumentsContract
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
-import android.view.ViewGroup
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
 import androidx.navigation.ui.AppBarConfiguration
 import com.hifnawy.bootanimationplayer.databinding.ActivityMainBinding
-import processing.android.CompatUtils
 import processing.android.PFragment
 import processing.core.PApplet
 import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
-    private val OPEN_DIRECTORY_REQUEST_CODE: Int = 0
-    private val READ_EXT_STORAGE_REQUEST_CODE: Int = 100
-    private val ACCESS_ALL_FILES_REQUEST_CODE: Int = 200
+    private val OPEN_ZIP_FILE_REQUEST_CODE: Int = 23081993
+    private val OPEN_DIRECTORY_REQUEST_CODE: Int = 23
+    private val READ_EXT_STORAGE_REQUEST_CODE: Int = 8
+    private val ACCESS_ALL_FILES_REQUEST_CODE: Int = 1993
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -64,7 +62,8 @@ class MainActivity : AppCompatActivity() {
                     startActivityForResult(intent, ACCESS_ALL_FILES_REQUEST_CODE)
                 }
             } else {
-                openDirectory(Uri.EMPTY)
+                openFile(Uri.EMPTY)
+                // openDirectory(Uri.EMPTY)
             }
         } else {
             if (ActivityCompat.shouldShowRequestPermissionRationale(
@@ -95,7 +94,8 @@ class MainActivity : AppCompatActivity() {
         sketch.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             READ_EXT_STORAGE_REQUEST_CODE -> if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openDirectory(Uri.EMPTY)
+                openFile(Uri.EMPTY)
+                // openDirectory(Uri.EMPTY)
             } else {
                 requestPermissions()
             }
@@ -109,9 +109,26 @@ class MainActivity : AppCompatActivity() {
     ) {
         when (requestCode) {
             ACCESS_ALL_FILES_REQUEST_CODE -> if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && Environment.isExternalStorageManager()) {
-                openDirectory(Uri.EMPTY)
+                openFile(Uri.EMPTY)
+                // openDirectory(Uri.EMPTY)
             } else {
                 Toast.makeText(this, "Manage all files access rejected!", Toast.LENGTH_SHORT).show()
+            }
+            OPEN_ZIP_FILE_REQUEST_CODE -> if (resultCode == Activity.RESULT_OK) {
+                resultData?.data?.also { uri ->
+                    val pathParts = uri.pathSegments[1].split(":")
+                    val absolutePath =
+                        if (pathParts[0].lowercase() == "primary") "${Environment.getExternalStorageDirectory().path}/${pathParts[1]}" else "/${
+                            Environment.getExternalStorageDirectory().path.split(
+                                "/"
+                            )[1]
+                        }/${pathParts.joinToString("/") { it }}"
+
+                    val frame = binding.sketchContainer
+                    sketch = Sketch(File(absolutePath))
+                    val pFragment = PFragment(sketch)
+                    pFragment.setView(frame, this)
+                }
             }
             OPEN_DIRECTORY_REQUEST_CODE -> if (resultCode == Activity.RESULT_OK) {
                 // The result data contains a URI for the document or directory that
@@ -143,6 +160,21 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun openFile(pickerInitialUri: Uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "application/zip"
+
+                // Optionally, specify a URI for the file that should appear in the
+                // system file picker when it loads.
+
+                putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri)
+            }
+            startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE)
         }
     }
 
@@ -181,10 +213,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            val frame = binding.sketchContainer
-            sketch = Sketch(zipFiles)
-            val pFragment = PFragment(sketch)
-            pFragment.setView(frame, this)
+            // populate RecyclerView with zipFiles data
         }
     }
 }
