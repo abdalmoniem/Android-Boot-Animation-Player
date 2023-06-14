@@ -15,40 +15,48 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.hifnawy.bootanimationplayer.R
+import com.hifnawy.bootanimationplayer.Adapters.FilesAndFoldersAdapter
 import com.hifnawy.bootanimationplayer.databinding.FragmentFilesAndFoldersBinding
 import java.io.File
 
-private const val OPEN_ZIP_FILE_REQUEST_CODE: Int = 23081993
-private const val OPEN_DIRECTORY_REQUEST_CODE: Int = 23
-private const val READ_WRITE_EXT_STORAGE_REQUEST_CODE: Int = 8
-private const val ACCESS_ALL_FILES_REQUEST_CODE: Int = 1993
-
 /**
  * A simple [Fragment] subclass.
- * Use the [FilesAndFoldersFragment.newInstance] factory method to
- * create an instance of this fragment.
  */
 class FilesAndFoldersFragment : Fragment() {
-    private lateinit var binding: FragmentFilesAndFoldersBinding
+    private companion object {
+        private const val OPEN_ZIP_FILE_REQUEST_CODE: Int = 23081993
+        private const val OPEN_DIRECTORY_REQUEST_CODE: Int = 23
+        private const val READ_WRITE_EXT_STORAGE_REQUEST_CODE: Int = 8
+        private const val ACCESS_ALL_FILES_REQUEST_CODE: Int = 1993
+    }
+
+    private var binding: FragmentFilesAndFoldersBinding? = null
+    private lateinit var navController: NavController
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
-        binding = FragmentFilesAndFoldersBinding.inflate(inflater, container, false)
-
-        binding.button.setOnClickListener {
-            findNavController().navigate(R.id.actionToProcessingSketch)
+        if (binding == null) {
+            // Inflate the layout for this fragment
+            binding = FragmentFilesAndFoldersBinding.inflate(inflater, container, false)
         }
+        navController = findNavController()
 
-        binding.fab.setOnClickListener { view ->
-            if (!arePermissionsGranted()) {
-                requestPermissions()
-            } else {
-                openFile(Uri.EMPTY)
+        with(binding!!) {
+            foldersRecyclerView.visibility =
+                if ((foldersRecyclerView.adapter != null) && (foldersRecyclerView.adapter!!.itemCount > 0)) View.VISIBLE else View.GONE
+
+            addFilesAndFoldersFab.setOnClickListener {
+                if (!arePermissionsGranted()) {
+                    requestPermissions()
+                } else {
+                    // openFile(Uri.EMPTY)
+                    openDirectory(Uri.EMPTY)
+                }
             }
         }
 
@@ -56,61 +64,45 @@ class FilesAndFoldersFragment : Fragment() {
             requestPermissions()
         }
 
-        return binding.root
+        return binding!!.root
     }
 
     private fun arePermissionsGranted(): Boolean {
-        var granted = false
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            granted = Environment.isExternalStorageManager()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Environment.isExternalStorageManager()
         } else {
-            granted = (ContextCompat.checkSelfPermission(
-                context!!,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            (ContextCompat.checkSelfPermission(
+                requireContext(), android.Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED) && ContextCompat.checkSelfPermission(
-                context!!,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
         }
-
-        return granted
     }
 
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (!Environment.isExternalStorageManager()) {
-                MaterialAlertDialogBuilder(context!!)
-                    .setTitle("Manage All Files Access Required")
+                MaterialAlertDialogBuilder(requireContext()).setTitle("Manage All Files Access Required")
                     .setMessage("The Application needs permission to manage all files access to be able to operate on animation files. Grant access?")
                     .setPositiveButton("Ok") { _, _ ->
                         try {
                             val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                             intent.addCategory("android.intent.category.DEFAULT")
                             intent.data =
-                                Uri.parse(
-                                    String.format(
-                                        "package:%s",
-                                        activity!!.applicationContext.packageName
-                                    )
-                                )
+                                Uri.parse("package:${requireActivity().applicationContext.packageName}")
                             startActivityForResult(intent, ACCESS_ALL_FILES_REQUEST_CODE)
                         } catch (e: Exception) {
                             val intent = Intent()
                             intent.action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
                             startActivityForResult(intent, ACCESS_ALL_FILES_REQUEST_CODE)
                         }
-                    }
-                    .setNegativeButton(
+                    }.setNegativeButton(
                         "Cancel"
                     ) { _, _ ->
                         Toast.makeText(
-                            activity,
-                            "Manage all files access rejected!",
-                            Toast.LENGTH_SHORT
+                            activity, "Manage all files access rejected!", Toast.LENGTH_SHORT
                         ).show()
-                    }
-                    .show()
+                    }.show()
 
             } else {
                 // all permission are granted
@@ -126,16 +118,14 @@ class FilesAndFoldersFragment : Fragment() {
                     arrayOf(
                         android.Manifest.permission.READ_EXTERNAL_STORAGE,
                         android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ),
-                    READ_WRITE_EXT_STORAGE_REQUEST_CODE
+                    ), READ_WRITE_EXT_STORAGE_REQUEST_CODE
                 )
             } else {
                 requestPermissions(
                     arrayOf(
                         android.Manifest.permission.READ_EXTERNAL_STORAGE,
                         android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ),
-                    READ_WRITE_EXT_STORAGE_REQUEST_CODE
+                    ), READ_WRITE_EXT_STORAGE_REQUEST_CODE
                 )
             }
         }
@@ -162,6 +152,7 @@ class FilesAndFoldersFragment : Fragment() {
             } else {
                 Toast.makeText(activity, "Manage all files access rejected!", Toast.LENGTH_SHORT).show()
             }
+
             OPEN_ZIP_FILE_REQUEST_CODE -> if (resultCode == Activity.RESULT_OK) {
                 resultData?.data?.also { uri ->
                     val pathParts = uri.pathSegments[1].split(":")
@@ -174,11 +165,16 @@ class FilesAndFoldersFragment : Fragment() {
 
                     // add to directories
 
-                    val bundle = Bundle()
-                    bundle.putString("zipFilePath", absolutePath)
-                    findNavController().navigate(R.id.actionToProcessingSketch, bundle)
+                    with(navController) {
+                        navigate(
+                            directions = FilesAndFoldersFragmentDirections.actionToProcessingSketch(
+                                zipFile = File(absolutePath)
+                            )
+                        )
+                    }
                 }
             }
+
             OPEN_DIRECTORY_REQUEST_CODE -> if (resultCode == Activity.RESULT_OK) {
                 // The result data contains a URI for the document or directory that
                 // the user selected.
@@ -240,6 +236,13 @@ class FilesAndFoldersFragment : Fragment() {
             }
 
             // populate RecyclerView with zipFiles data
+            if (zipFiles.size > 0) {
+                binding!!.noFilesOrFoldersSelectedTextView.visibility = View.GONE
+                binding!!.foldersRecyclerView.visibility = View.VISIBLE
+                binding!!.foldersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                binding!!.foldersRecyclerView.adapter =
+                    FilesAndFoldersAdapter(requireContext(), zipFiles)
+            }
         }
     }
 }

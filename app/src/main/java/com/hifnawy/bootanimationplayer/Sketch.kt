@@ -7,9 +7,9 @@ import java.io.File
 import java.text.DecimalFormat
 
 
-class Sketch
-constructor() : PApplet() {
-    private lateinit var zipFile: File
+class Sketch(zippedFile: File) : PApplet() {
+    private var resolutionScale: Float = 0f
+    private var zipFile = zippedFile
     private var animationWidth = 0
     private var animationHeight = 0
     private var animationFrameRate = 0
@@ -23,8 +23,8 @@ constructor() : PApplet() {
     private var partImageIndex = 0
     private var images: ArrayList<ArrayList<PImage>> = ArrayList()
 
-    constructor(zipFile: File) : this() {
-        this.zipFile = zipFile
+    constructor(zippedFile: File, resolutionScale: Float) : this(zippedFile) {
+        this.resolutionScale = resolutionScale
     }
 
     override fun settings() {
@@ -45,7 +45,7 @@ constructor() : PApplet() {
         descHeight = parameters[1].toInt()
         animationFrameRate = parameters[2].toInt()
 
-        animationWidth = 800
+        animationWidth = if (resolutionScale > 0) (descWidth * resolutionScale).toInt() else descWidth
         animationHeight = animationWidth * descHeight / descWidth
 
         animationFrameTime = 1000 / animationFrameRate
@@ -96,8 +96,8 @@ constructor() : PApplet() {
         val image = images[partIndex][partImageIndex]
         image(image, animationXOffset, animationYOffset)
 
-        partImageIndex = ++partImageIndex % images.get(partIndex).size;
-        partIndex = if (partImageIndex == 0) ++partIndex % images.size else partIndex;
+        partImageIndex = ++partImageIndex % images[partIndex].size
+        partIndex = if (partImageIndex == 0) ++partIndex % images.size else partIndex
 
         if ((partIndex == 0) && (partImageIndex == 0)) noLoop()
 

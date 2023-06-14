@@ -24,5 +24,9 @@
         <action
             android:id="@+id/actionToFilesAndFolders"
             app:destination="@id/filesAndFoldersFragment" />
+        <argument
+            android:name="zipFile"
+            app:nullable="false"
+            app:argType="java.io.File" />
     </fragment>
 </navigation>
