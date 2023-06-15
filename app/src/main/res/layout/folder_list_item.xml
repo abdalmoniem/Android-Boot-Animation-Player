@@ -12,8 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:elevation="10dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="10dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/material_dynamic_secondary90"
         app:cardPreventCornerOverlap="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,34 +24,41 @@
 
             <ImageView
                 android:id="@+id/folder_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:src="@drawable/baseline_folder_closed"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@+id/folder_name"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.15"
+                app:tint="@color/material_dynamic_tertiary50" />
 
             <ImageView
                 android:id="@+id/arrow_down"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:src="@drawable/baseline_keyboard_arrow_down"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toEndOf="@+id/folder_name"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.08" />
 
             <TextView
                 android:id="@+id/folder_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
                 android:text="Folder Name"
-                android:textColor="@color/material_dynamic_primary10"
-                android:textSize="16dp"
+                android:textColor="@color/material_dynamic_primary50"
+                android:textSize="24dp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/arrow_down"
-                app:layout_constraintHorizontal_bias="0"
-                app:layout_constraintStart_toEndOf="@id/folder_icon"
+                app:layout_constraintBottom_toTopOf="@+id/folder_path"
+                app:layout_constraintEnd_toStartOf="@+id/arrow_down"
+                app:layout_constraintStart_toEndOf="@+id/folder_icon"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -59,13 +67,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:text="Folder Path"
-                android:textColor="@color/material_dynamic_secondary30"
-                android:textSize="10dp"
+                android:textColor="@color/material_dynamic_secondary60"
+                android:textSize="16dp"
                 android:textStyle="italic"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/arrow_down"
-                app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintStart_toEndOf="@id/folder_icon"
-                app:layout_constraintTop_toBottomOf="@id/folder_name" />
+                app:layout_constraintTop_toBottomOf="@+id/folder_name" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
