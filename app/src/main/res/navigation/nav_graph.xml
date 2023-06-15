@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/filesAndFoldersFragment"
-        android:name="com.hifnawy.bootanimationplayer.UI.Fragments.FilesAndFoldersFragment"
+        android:name="com.hifnawy.bootanimationplayer.ui.fragments.FilesAndFoldersFragment"
         android:label="Files and Folders"
         tools:layout="@layout/fragment_files_and_folders">
 
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/processingSketchFragment"
-        android:name="com.hifnawy.bootanimationplayer.UI.Fragments.ProcessingSketchFragment"
+        android:name="com.hifnawy.bootanimationplayer.ui.fragments.ProcessingSketchFragment"
         android:label="Animation"
         tools:layout="@layout/fragment_processing_sketch">
 

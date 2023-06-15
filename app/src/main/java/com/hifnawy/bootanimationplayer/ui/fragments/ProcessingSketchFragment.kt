@@ -1,4 +1,4 @@
-package com.hifnawy.bootanimationplayer.UI.Fragments
+package com.hifnawy.bootanimationplayer.ui.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -44,6 +44,7 @@ class ProcessingSketchFragment : Fragment() {
         return binding!!.root
     }
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String?>, grantResults: IntArray
     ) {
@@ -51,6 +52,4 @@ class ProcessingSketchFragment : Fragment() {
             sketch.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
-
-
 }

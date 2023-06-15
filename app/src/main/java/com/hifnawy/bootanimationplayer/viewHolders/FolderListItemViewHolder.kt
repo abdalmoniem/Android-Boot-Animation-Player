@@ -1,4 +1,4 @@
-package com.hifnawy.bootanimationplayer.ViewHolders
+package com.hifnawy.bootanimationplayer.viewHolders
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView.ViewHolder

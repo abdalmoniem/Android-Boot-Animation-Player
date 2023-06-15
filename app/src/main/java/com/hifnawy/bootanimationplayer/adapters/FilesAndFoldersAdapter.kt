@@ -1,4 +1,4 @@
-package com.hifnawy.bootanimationplayer.Adapters
+package com.hifnawy.bootanimationplayer.adapters
 
 import android.content.Context
 import android.util.Log
@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.RecyclerView
 import com.hifnawy.bootanimationplayer.R
-import com.hifnawy.bootanimationplayer.UI.Fragments.FilesAndFoldersFragmentDirections
-import com.hifnawy.bootanimationplayer.ViewHolders.FolderListItemViewHolder
+import com.hifnawy.bootanimationplayer.ui.fragments.FilesAndFoldersFragmentDirections
+import com.hifnawy.bootanimationplayer.viewHolders.FolderListItemViewHolder
 import java.io.File
 
 class FilesAndFoldersAdapter

@@ -1,4 +1,4 @@
-package com.hifnawy.bootanimationplayer.UI.Activities
+package com.hifnawy.bootanimationplayer.ui.activities
 
 import android.os.Bundle
 import android.view.Menu
