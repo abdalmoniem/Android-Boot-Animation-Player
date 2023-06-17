@@ -43,10 +43,14 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.6.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.6.0'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.1"
     implementation files('libs/processing-core.jar')
 
     // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
     implementation 'net.lingala.zip4j:zip4j:2.11.5'
+    implementation 'androidx.databinding:databinding-runtime:7.1.2'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

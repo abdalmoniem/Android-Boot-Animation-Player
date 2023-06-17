@@ -1,15 +1,18 @@
 package com.hifnawy.bootanimationplayer
 
-import net.lingala.zip4j.ZipFile
+import android.content.Context
+import com.hifnawy.bootanimationplayer.settingsDataStorage.SettingsDataStore
 import processing.core.PApplet
 import processing.core.PImage
 import java.io.File
 import java.text.DecimalFormat
 
 
-class Sketch(zippedFile: File) : PApplet() {
+class Sketch(
+    context: Context,
+    var animationFolder: File
+) : PApplet() {
     private var resolutionScale: Float = 0f
-    private var zipFile = zippedFile
     private var animationWidth = 0
     private var animationHeight = 0
     private var animationFrameRate = 0
@@ -23,47 +26,52 @@ class Sketch(zippedFile: File) : PApplet() {
     private var partImageIndex = 0
     private var images: ArrayList<ArrayList<PImage>> = ArrayList()
 
-    constructor(zippedFile: File, resolutionScale: Float) : this(zippedFile) {
-        this.resolutionScale = resolutionScale
+    private var settings = SettingsDataStore(context)
+
+    init {
+        resolutionScale = settings.resolutionScale
+        animationFrameRate = settings.fps
+
+        resolutionScale = 1.0f
     }
 
     override fun settings() {
-        val unzipFile = ZipFile(zipFile.path)
-        val animationData = File(zipFile.absolutePath.replace(".${zipFile.extension}", ""))
+        val descFile = File("${this.animationFolder}/desc.txt")
 
-        if (!animationData.exists()) {
-            animationData.mkdir()
-            unzipFile.extractAll(animationData.absolutePath)
+        if (descFile.exists()) {
+            val lines = loadStrings(descFile)
+            val parameters = lines[0].split(" ")
+
+            descWidth = parameters[0].toInt()
+            descHeight = parameters[1].toInt()
+
+            if (animationFrameRate == 0) {
+                animationFrameRate = parameters[2].toInt()
+            }
+
+            animationWidth =
+                if (resolutionScale > 0) (descWidth * resolutionScale).toInt() else descWidth
+            animationHeight = animationWidth * descHeight / descWidth
+
+            animationFrameTime = 1000 / animationFrameRate
+
+            println("width: $descWidth, height: $descHeight")
+            println("animation width: $animationWidth, animation height: $animationHeight")
+
+            size(displayWidth, displayHeight)
+        } else {
+            println("${descFile.path} doesn't exist!")
+            noLoop()
         }
-
-        val descFile = File("${animationData.absolutePath}/desc.txt")
-        val lines = loadStrings(descFile)
-
-        val parameters = lines[0].split(" ".toRegex()).toTypedArray()
-
-        descWidth = parameters[0].toInt()
-        descHeight = parameters[1].toInt()
-        animationFrameRate = parameters[2].toInt()
-
-        animationWidth = if (resolutionScale > 0) (descWidth * resolutionScale).toInt() else descWidth
-        animationHeight = animationWidth * descHeight / descWidth
-
-        animationFrameTime = 1000 / animationFrameRate
-
-        println("width, height: ", parameters[0].toInt(), parameters[1].toInt())
-        println("animation width, animation height: ", animationWidth, animationHeight)
-
-        size(displayWidth, displayHeight)
     }
 
     override fun setup() {
-        val animationData = File(zipFile.absolutePath.replace(".${zipFile.extension}", ""))
-
-        animationData.listFiles()!!.forEach { file ->
+        animationFolder.listFiles()!!.sorted().forEach { file ->
             if (file.isDirectory) {
-                println("loading " + file.path + "/*.png")
+                println("loading ${file.path}/*.png")
                 val partImages: ArrayList<PImage> = ArrayList()
-                file.listFiles()!!.forEach { partFile ->
+
+                file.listFiles()!!.sorted().forEach { partFile ->
                     if (partFile.extension == "png") {
                         val scaleX = descWidth * 1.0f / animationWidth
                         val scaleY = descHeight * 1.0f / animationHeight
@@ -77,17 +85,19 @@ class Sketch(zippedFile: File) : PApplet() {
                     }
                 }
                 images.add(partImages)
-                println("DONE! Processed " + partImages.size.toString() + " images!")
+                println("DONE! Processed ${partImages.size} images!")
             }
         }
-        println()
-        println("animation frame rate: $animationFrameRate")
+
+        println("\nanimation frame rate: $animationFrameRate")
         println("animation frame time: $animationFrameTime")
 
         animationXOffset = (displayWidth / 2 - images[0][0].width / 2).toFloat()
         animationYOffset = (displayHeight / 2 - images[0][0].height / 2).toFloat()
 
+        animationFolder.deleteRecursively()
         frameRate(animationFrameRate.toFloat())
+        // frameRate(5f)
     }
 
     override fun draw() {
@@ -101,10 +111,14 @@ class Sketch(zippedFile: File) : PApplet() {
 
         if ((partIndex == 0) && (partImageIndex == 0)) noLoop()
 
-        fill(0f, 255f, 0f)
         textSize(64f)
-
-        text("FPS: " + DecimalFormat("#0.00").format(frameRate), 20f, 70f, TextAlignment.RIGHT)
+        text(
+            "FPS: ${DecimalFormat("#0.00").format(frameRate)}",
+            20f,
+            70f,
+            TextAlignment.RIGHT,
+            if ((animationFrameRate - frameRate) >= 30) TextType.WARN else TextType.INFO
+        )
         text("Part: $partIndex", 20f, 140f, TextAlignment.RIGHT)
         text("Image: $partImageIndex", 20f, 210f, TextAlignment.RIGHT)
     }
@@ -120,8 +134,15 @@ class Sketch(zippedFile: File) : PApplet() {
         text: String,
         @Suppress("SameParameterValue") x: Float,
         y: Float,
-        @Suppress("SameParameterValue") alignment: TextAlignment
+        @Suppress("SameParameterValue") alignment: TextAlignment,
+        type: TextType = TextType.INFO
     ) {
+        when (type) {
+            TextType.INFO -> fill(0f, 255f, 0f)
+            TextType.DEBUG -> fill(0f, 255f, 255f)
+            TextType.WARN -> fill(255f, 255f, 0f)
+            TextType.ERROR -> fill(255f, 0f, 0f)
+        }
         val textWidth = textWidth(text)
         when (alignment) {
             TextAlignment.LEFT -> text(text, x, y)
@@ -132,5 +153,12 @@ class Sketch(zippedFile: File) : PApplet() {
 
     internal enum class TextAlignment {
         LEFT, RIGHT, CENTER
+    }
+
+    internal enum class TextType {
+        INFO,
+        DEBUG,
+        WARN,
+        ERROR
     }
 }

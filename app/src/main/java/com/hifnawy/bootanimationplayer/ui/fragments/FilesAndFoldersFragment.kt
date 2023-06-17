@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hifnawy.bootanimationplayer.adapters.FilesAndFoldersAdapter
 import com.hifnawy.bootanimationplayer.databinding.FragmentFilesAndFoldersBinding
+import net.lingala.zip4j.ZipFile
 import java.io.File
 
 /**
@@ -154,10 +155,20 @@ class FilesAndFoldersFragment : Fragment() {
 
             // add to directories
 
+            ZipFile(absolutePath).extractAll(absolutePath.replace(".zip", ""))
+
             with(navController) {
                 navigate(
                     directions = FilesAndFoldersFragmentDirections.actionToProcessingSketch(
-                        zipFile = File(absolutePath)
+                        animationFolder = File(absolutePath.replace(".zip", ""))
+                    )
+                )
+            }
+
+            with(navController) {
+                navigate(
+                    directions = FilesAndFoldersFragmentDirections.actionToProcessingSketch(
+                        animationFolder = File(absolutePath)
                     )
                 )
             }
