@@ -6,8 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
 import com.hifnawy.bootanimationplayer.Sketch
 import com.hifnawy.bootanimationplayer.databinding.FragmentProcessingSketchBinding
 import processing.android.PFragment
@@ -20,7 +18,6 @@ import processing.core.PApplet
 class ProcessingSketchFragment : Fragment() {
     private var binding: FragmentProcessingSketchBinding? = null
     private lateinit var sketch: PApplet
-    private lateinit var navController: NavController
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,8 +27,6 @@ class ProcessingSketchFragment : Fragment() {
             // Inflate the layout for this fragment
             binding = FragmentProcessingSketchBinding.inflate(inflater, container, false)
         }
-
-        navController = findNavController()
 
         val file = ProcessingSketchFragmentArgs.fromBundle(requireArguments()).file
         val frame = binding!!.sketchContainer

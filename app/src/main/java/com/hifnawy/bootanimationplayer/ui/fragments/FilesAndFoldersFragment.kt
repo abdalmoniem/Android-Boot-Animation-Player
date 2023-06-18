@@ -30,6 +30,14 @@ import java.io.File
  * Selects and Shows list of boot animation files
  */
 class FilesAndFoldersFragment : Fragment() {
+    internal companion object {
+        val EMPTY: Uri = Uri.EMPTY
+        val ZIPFiles: Array<String> = arrayOf("application/zip")
+        val PERMISSIONS: Array<String> = arrayOf(
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+    }
 
     private var binding: FragmentFilesAndFoldersBinding? = null
     private lateinit var navController: NavController
@@ -43,7 +51,6 @@ class FilesAndFoldersFragment : Fragment() {
             ::permissionRequestResults
         )
 
-    @Suppress("unused")
     private val openDocument =
         registerForActivityResult(ActivityResultContracts.OpenDocument(), ::openDocumentResult)
 
@@ -71,8 +78,8 @@ class FilesAndFoldersFragment : Fragment() {
                 if (shouldRequestPermissions()) {
                     requestPermissions()
                 } else {
-                    // openDocument.launch(arrayOf("application/zip"))
-                    openDocumentTree.launch(Uri.EMPTY)
+                    // openDocument.launch(ZIPFiles)
+                    openDocumentTree.launch(EMPTY)
                 }
             }
         }
@@ -86,60 +93,81 @@ class FilesAndFoldersFragment : Fragment() {
         } else {
             (ContextCompat.checkSelfPermission(
                 requireContext(), android.Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED) || ContextCompat.checkSelfPermission(
+            ) != PackageManager.PERMISSION_GRANTED) || (ContextCompat.checkSelfPermission(
                 requireContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
+            ) != PackageManager.PERMISSION_GRANTED)
         }
     }
 
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                MaterialAlertDialogBuilder(requireContext()).setTitle("Manage All Files Access Required")
-                    .setMessage("The Application needs permission to manage all files access to be able to operate on animation files. Grant access?")
-                    .setPositiveButton("Ok") { _, _ ->
-                        try {
-                            startActivityResult.launch(
-                                Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).addCategory(
-                                    "android.intent.category.DEFAULT"
-                                )
-                                    .setData(Uri.parse("package:${requireActivity().applicationContext.packageName}"))
+            MaterialAlertDialogBuilder(requireContext()).setTitle("Manage All Files Access Required")
+                .setMessage("The Application needs permission to manage all files access to be able to operate on animation files. Grant access?")
+                .setPositiveButton("Ok") { _, _ ->
+                    try {
+                        startActivityResult.launch(
+                            Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).addCategory(
+                                "android.intent.category.DEFAULT"
                             )
-                        } catch (e: Exception) {
-                            startActivityResult.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
-                        }
-                    }.setNegativeButton(
-                        "Cancel"
-                    ) { _, _ ->
-                        Toast.makeText(
-                            activity, "Manage all files access rejected!", Toast.LENGTH_SHORT
-                        ).show()
-                    }.show()
-
-            } else {
-                // all permission are granted
-            }
+                                .setData(Uri.parse("package:${requireActivity().applicationContext.packageName}"))
+                        )
+                    } catch (e: Exception) {
+                        startActivityResult.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+                    }
+                }.setNegativeButton(
+                    "Cancel"
+                ) { _, _ ->
+                    Toast.makeText(
+                        activity, "Manage all files access rejected!", Toast.LENGTH_SHORT
+                    ).show()
+                }.show()
         } else {
-            if (shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                Toast.makeText(
-                    activity,
-                    "Storage permission required. Please allow this permission",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                requestPermissions.launch(
-                    arrayOf(
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    )
-                )
-            }
+            requestPermissions.launch(
+                PERMISSIONS
+            )
         }
     }
 
     private fun permissionRequestResults(permissions: Map<String, @JvmSuppressWildcards Boolean>) {
         permissions.entries.forEach { permission ->
-            Log.d("PERMISSIONS", "${permission.key} : ${permission.value}")
+            if (!permission.value) {
+                if (shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    Toast.makeText(
+                        activity,
+                        "Storage permission required. Please allow this permission",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    MaterialAlertDialogBuilder(requireContext()).setTitle("Storage Read/Write Access Required")
+                        .setMessage("The Application needs permission to read/write files to be able to operate on animation files. Grant access?")
+                        .setPositiveButton("Ok") { _, _ ->
+                            requestPermissions.launch(PERMISSIONS)
+                        }.setNegativeButton(
+                            "Cancel"
+                        ) { _, _ ->
+                            Toast.makeText(
+                                activity, "Storage read/write access rejected!", Toast.LENGTH_SHORT
+                            ).show()
+                        }.show()
+                } else {
+                    Toast.makeText(
+                        context,
+                        "${permission.key} is not granted, please grant the permission in settings",
+                        Toast.LENGTH_SHORT
+                    )
+                        .show()
+                }
+            } else {
+                Log.d(
+                    "PERMISSIONS",
+                    "${permission.key} : ${
+                        when {
+                            permission.value -> "granted!"
+                            else -> "not granted!"
+                        }
+                    }"
+                )
+            }
         }
     }
 
@@ -172,8 +200,7 @@ class FilesAndFoldersFragment : Fragment() {
         }
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    private fun activityResults(result: ActivityResult) {
+    private fun activityResults(@Suppress("UNUSED_PARAMETER") ignoredResult: ActivityResult) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager()) {
                 // all permissions are granted
