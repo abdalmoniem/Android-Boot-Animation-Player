@@ -198,11 +198,11 @@ class FilesAndFoldersFragment : Fragment() {
         if (directory.isDirectory) {
             val zipFiles: ArrayList<File> = ArrayList()
 
-            directory.list()!!.forEach {
-                val file = File("$absolutePath/$it")
-
-                if (!file.isDirectory && (file.extension.lowercase() == "zip")) {
-                    zipFiles.add(file)
+            directory.listFiles()?.apply {
+                sorted().forEach { file ->
+                    if (!file.isDirectory && (file.extension.lowercase() == "zip")) {
+                        zipFiles.add(file)
+                    }
                 }
             }
 

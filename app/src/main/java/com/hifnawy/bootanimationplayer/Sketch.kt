@@ -62,7 +62,7 @@ class Sketch(
         loadingDialog.setCancelable(false)
         loadingDialog.window?.apply {
             setBackgroundDrawableResource(android.R.color.transparent)
-            setLayout((displayWidth * 0.7f).toInt(), (displayHeight * 0.2f).toInt())
+            setLayout((displayWidth * 0.6f).toInt(), (displayHeight * 0.23f).toInt())
         }
         loadingDialogBinding.message.text = fragment.getString(R.string.loading_file, file.path)
 
@@ -117,34 +117,38 @@ class Sketch(
                     loadingDialog.dismiss()
                 }
 
-                extractedFile.listFiles()!!.sorted().forEach { file ->
-                    if (file.isDirectory) {
-                        println("loading ${file.path}/*.png")
-                        val partImages: ArrayList<PImage> = ArrayList()
+                extractedFile.listFiles()?.apply {
+                    sorted().forEach { file ->
+                        if (file.isDirectory) {
+                            println("loading ${file.path}/*.png")
+                            val partImages: ArrayList<PImage> = ArrayList()
 
-                        file.listFiles()!!.sorted().forEach { partFile ->
-                            if (partFile.extension == "png") {
-                                withContext(Dispatchers.Main) {
-                                    loadingDialogBinding.message.text = fragment.getString(
-                                        R.string.loading_image,
-                                        "${file.name}/${partFile.name}"
-                                    )
+                            file.listFiles()?.apply {
+                                sorted().forEach { partFile ->
+                                    if (partFile.extension == "png") {
+                                        withContext(Dispatchers.Main) {
+                                            loadingDialogBinding.message.text = fragment.getString(
+                                                R.string.loading_image,
+                                                "${file.name}/${partFile.name}"
+                                            )
+                                        }
+
+                                        val scaleX = descWidth * 1.0f / animationWidth
+                                        val scaleY = descHeight * 1.0f / animationHeight
+
+                                        val partImage = loadImage(partFile.path)
+                                        partImage.resize(
+                                            (partImage.width / scaleX).toInt(),
+                                            (partImage.height / scaleY).toInt()
+                                        )
+
+                                        partImages.add(partImage)
+                                    }
                                 }
-
-                                val scaleX = descWidth * 1.0f / animationWidth
-                                val scaleY = descHeight * 1.0f / animationHeight
-
-                                val partImage = loadImage(partFile.path)
-                                partImage.resize(
-                                    (partImage.width / scaleX).toInt(),
-                                    (partImage.height / scaleY).toInt()
-                                )
-
-                                partImages.add(partImage)
+                                images.add(partImages)
+                                println("DONE! Processed ${partImages.size} images!")
                             }
                         }
-                        images.add(partImages)
-                        println("DONE! Processed ${partImages.size} images!")
                     }
                 }
 
@@ -154,14 +158,11 @@ class Sketch(
                 animationXOffset = (displayWidth / 2 - images[0][0].width / 2).toFloat()
                 animationYOffset = (displayHeight / 2 - images[0][0].height / 2).toFloat()
 
-                extractedFile.listFiles()!!.apply {
-                    for (index in size - 1 downTo 0) {
-                        val file = get(index)
-
+                extractedFile.listFiles()?.apply {
+                    sorted().reversed().forEach { file ->
                         if (file.isDirectory) {
-                            file.listFiles()!!.apply {
-                                for (folderIndex in size - 1 downTo 0) {
-                                    val folderFile = get(folderIndex)
+                            file.listFiles()?.apply {
+                                sorted().reversed().forEach { folderFile ->
                                     withContext(Dispatchers.Main) {
                                         loadingDialogBinding.message.text =
                                             fragment.getString(
@@ -182,7 +183,6 @@ class Sketch(
 
                             file.delete()
                         }
-
                     }
                 }
 
@@ -192,6 +192,7 @@ class Sketch(
                         extractedFile.name
                     )
                 }
+
                 extractedFile.deleteRecursively()
                 frameRate(animationFrameRate.toFloat())
                 // frameRate(5f)
