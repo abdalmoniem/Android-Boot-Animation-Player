@@ -58,4 +58,9 @@
     <string name="attachment_title">Download incoming attachments</string>
     <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="loading_file">loading file:\n%1$s…</string>
+    <string name="extracting_file">extracting file:\n%1$s…</string>
+    <string name="reading_file">reading file:\n%1$s…</string>
+    <string name="loading_image">loading image:\n%1$s…</string>
+    <string name="deleting_file">deleting file:\n%1$s…</string>
 </resources>

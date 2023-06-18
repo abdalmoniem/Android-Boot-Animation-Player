@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:elevation="30dp"
-    app:cardBackgroundColor="@color/material_dynamic_tertiary30"
-    app:cardCornerRadius="10dp"
-    app:cardElevation="30dp">
+    app:cardBackgroundColor="@color/material_dynamic_primary10"
+    app:cardCornerRadius="25dp"
+    app:strokeColor="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="10dp">
+        android:layout_height="match_parent">
 
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:indeterminateTint="@color/material_dynamic_primary50"
+            android:indeterminateTint="@color/material_dynamic_primary80"
+            android:padding="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/message" />
@@ -25,24 +25,31 @@
             android:id="@+id/message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="10dp"
             android:text="Loading file: file.zip..."
-            android:textColor="@color/material_dynamic_primary60"
-            android:textSize="24dp"
+            android:textAlignment="center"
+            android:textColor="@color/material_dynamic_secondary80"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title" />
+            app:layout_constraintTop_toBottomOf="@id/title"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="@color/material_dynamic_primary50"
+            android:padding="10dp"
             android:text="Loading..."
-            android:textColor="@color/material_dynamic_primary60"
-            android:textSize="32dp"
+            android:textAlignment="center"
+            android:textColor="@color/material_dynamic_primary90"
+            android:textSize="32sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,9 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:elevation="10dp"
+        app:cardBackgroundColor="@color/material_dynamic_secondary90"
         app:cardCornerRadius="10dp"
         app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/material_dynamic_secondary90"
         app:cardPreventCornerOverlap="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout

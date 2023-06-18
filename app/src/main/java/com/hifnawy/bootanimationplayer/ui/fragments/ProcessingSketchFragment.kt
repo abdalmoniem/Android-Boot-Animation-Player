@@ -33,13 +33,13 @@ class ProcessingSketchFragment : Fragment() {
 
         navController = findNavController()
 
-        val animationFolder = ProcessingSketchFragmentArgs.fromBundle(requireArguments()).animationFolder
+        val file = ProcessingSketchFragmentArgs.fromBundle(requireArguments()).file
         val frame = binding!!.sketchContainer
-        sketch = Sketch(requireContext(), animationFolder)
+        sketch = Sketch(this, file)
         val pFragment = PFragment(sketch)
         pFragment.setView(frame, activity)
 
-        (activity as AppCompatActivity).supportActionBar?.title = animationFolder.name
+        (activity as AppCompatActivity).supportActionBar?.title = file.name
 
         return binding!!.root
     }

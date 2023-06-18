@@ -25,8 +25,8 @@
             android:id="@+id/actionToFilesAndFolders"
             app:destination="@id/filesAndFoldersFragment" />
         <argument
-            android:name="animationFolder"
-            app:nullable="false"
-            app:argType="java.io.File" />
+            android:name="file"
+            app:argType="java.io.File"
+            app:nullable="false" />
     </fragment>
 </navigation>

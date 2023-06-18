@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.hifnawy.bootanimationplayer.adapters.FilesAndFoldersAdapter
 import com.hifnawy.bootanimationplayer.databinding.FragmentFilesAndFoldersBinding
-import net.lingala.zip4j.ZipFile
 import java.io.File
 
 /**
@@ -44,6 +43,7 @@ class FilesAndFoldersFragment : Fragment() {
             ::permissionRequestResults
         )
 
+    @Suppress("unused")
     private val openDocument =
         registerForActivityResult(ActivityResultContracts.OpenDocument(), ::openDocumentResult)
 
@@ -153,25 +153,12 @@ class FilesAndFoldersFragment : Fragment() {
                     )[1]
                 }/${pathParts.joinToString("/") { it }}"
 
-            // add to directories
-
-            ZipFile(absolutePath).extractAll(absolutePath.replace(".zip", ""))
-
-            with(navController) {
-                navigate(
-                    directions = FilesAndFoldersFragmentDirections.actionToProcessingSketch(
-                        animationFolder = File(absolutePath.replace(".zip", ""))
-                    )
+            navController.navigate(
+                directions = FilesAndFoldersFragmentDirections.actionToProcessingSketch(
+                    file = File(absolutePath)
                 )
-            }
+            )
 
-            with(navController) {
-                navigate(
-                    directions = FilesAndFoldersFragmentDirections.actionToProcessingSketch(
-                        animationFolder = File(absolutePath)
-                    )
-                )
-            }
         } else {
             Toast.makeText(activity, "no file selected!", Toast.LENGTH_SHORT).show()
         }
@@ -185,6 +172,7 @@ class FilesAndFoldersFragment : Fragment() {
         }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun activityResults(result: ActivityResult) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager()) {
