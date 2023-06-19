@@ -6,16 +6,32 @@
     android:layout_height="match_parent"
     tools:context=".ui.activities.MainActivity">
 
-    <TextView
-        android:id="@+id/no_files_or_folders_selected_text_view"
+    <LinearLayout
+        android:id="@+id/no_files_or_folders_selected_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No Files or Folders Selected Yet!"
-        android:textSize="24dp"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:src="@drawable/baseline_content_paste_search"
+            app:tint="@color/material_dynamic_tertiary50" />
+
+        <TextView
+            android:id="@+id/asd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Files or Folders Selected Yet!\nSelect a Folder to Start"
+            android:textAlignment="center"
+            android:textColor="@color/material_dynamic_tertiary50"
+            android:textSize="24sp" />
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/folders_recycler_view"
@@ -28,6 +44,7 @@
         android:scrollbarStyle="outsideInset"
         android:scrollbarThumbVertical="@drawable/scrollbar_thumb"
         android:scrollbars="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

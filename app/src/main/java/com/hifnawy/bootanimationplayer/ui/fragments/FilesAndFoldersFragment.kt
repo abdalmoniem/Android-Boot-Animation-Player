@@ -235,7 +235,7 @@ class FilesAndFoldersFragment : Fragment() {
 
             // populate RecyclerView with zipFiles data
             if (zipFiles.size > 0) {
-                binding!!.noFilesOrFoldersSelectedTextView.visibility = View.GONE
+                binding!!.noFilesOrFoldersSelectedView.visibility = View.GONE
                 binding!!.foldersRecyclerView.visibility = View.VISIBLE
                 binding!!.foldersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
                 binding!!.foldersRecyclerView.adapter =
