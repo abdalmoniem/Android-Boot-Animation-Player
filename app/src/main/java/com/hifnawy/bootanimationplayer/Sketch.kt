@@ -60,7 +60,7 @@ class Sketch(
         loadingDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         loadingDialog.setContentView(loadingDialogBinding.root)
         loadingDialog.setCancelable(false)
-        loadingDialog.window?.apply {
+        loadingDialog.window?.run {
             setBackgroundDrawableResource(android.R.color.transparent)
             setLayout((displayWidth * 0.6f).toInt(), (displayHeight * 0.23f).toInt())
         }
@@ -117,13 +117,13 @@ class Sketch(
                     loadingDialog.dismiss()
                 }
 
-                extractedFile.listFiles()?.apply {
+                extractedFile.listFiles()?.run {
                     sorted().forEach { file ->
                         if (file.isDirectory) {
                             println("loading ${file.path}/*.png")
                             val partImages: ArrayList<PImage> = ArrayList()
 
-                            file.listFiles()?.apply {
+                            file.listFiles()?.run {
                                 sorted().forEach { partFile ->
                                     if (partFile.extension == "png") {
                                         withContext(Dispatchers.Main) {
@@ -158,10 +158,10 @@ class Sketch(
                 animationXOffset = (displayWidth / 2 - images[0][0].width / 2).toFloat()
                 animationYOffset = (displayHeight / 2 - images[0][0].height / 2).toFloat()
 
-                extractedFile.listFiles()?.apply {
+                extractedFile.listFiles()?.run {
                     sorted().reversed().forEach { file ->
                         if (file.isDirectory) {
-                            file.listFiles()?.apply {
+                            file.listFiles()?.run {
                                 sorted().reversed().forEach { folderFile ->
                                     withContext(Dispatchers.Main) {
                                         loadingDialogBinding.message.text =

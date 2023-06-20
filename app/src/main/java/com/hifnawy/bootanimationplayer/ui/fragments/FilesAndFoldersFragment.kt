@@ -1,24 +1,28 @@
 package com.hifnawy.bootanimationplayer.ui.fragments
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.text.TextUtils
 import android.util.Log
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.ColorInt
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -226,9 +230,9 @@ class FilesAndFoldersFragment : Fragment() {
         val directory = File(absolutePath)
 
         if (directory.isDirectory) {
-            val zipFiles: ArrayList<File> = ArrayList()
+            val zipFiles = arrayListOf<File>()
 
-            directory.listFiles()?.apply {
+            directory.listFiles()?.run {
                 sorted().forEach { file ->
                     if (!file.isDirectory && (file.extension.lowercase() == "zip")) {
                         zipFiles.add(file)
@@ -238,17 +242,41 @@ class FilesAndFoldersFragment : Fragment() {
 
             // populate RecyclerView with zipFiles data
             if (zipFiles.size > 0) {
-                binding?.apply {
+                binding?.run {
                     noFilesOrFoldersSelectedView.visibility = View.GONE
                     foldersRecyclerView.visibility = View.VISIBLE
                     foldersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
                     foldersRecyclerView.adapter = FilesAndFoldersAdapter(requireContext(), zipFiles)
+
                     val fastScroller =
                         FastScrollerBuilder(foldersRecyclerView).useMd2Style().setThumbDrawable(
                             AppCompatResources.getDrawable(
                                 requireContext(), R.drawable.scrollbar_thumb
                             )!!
-                        ).build()
+                        ).setPopupStyle { popupView ->
+                            popupView.minimumWidth = 200.dp.value.toInt()
+                            popupView.minimumHeight = 200.dp.value.toInt()
+                            popupView.elevation = 10.dp.value
+                            popupView.gravity = Gravity.CENTER
+                            popupView.setPadding(0, 15.dp.value.toInt(), 35.dp.value.toInt(), 0)
+                            popupView.layoutParams =
+                                (popupView.layoutParams as FrameLayout.LayoutParams).apply {
+                                    gravity = Gravity.CENTER_HORIZONTAL or Gravity.TOP
+                                    marginEnd = 50.dp.value.toInt()
+                                }
+
+                            popupView.background = AppCompatResources.getDrawable(
+                                requireContext(), R.drawable.scrollbar_popupview
+                            )
+
+                            popupView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+                            popupView.ellipsize = TextUtils.TruncateAt.MIDDLE
+                            popupView.includeFontPadding = false
+                            popupView.isSingleLine = true
+                            popupView.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+                            popupView.setTextSize(TypedValue.COMPLEX_UNIT_PX, 100.sp.value)
+                        }.build()
+
                     foldersRecyclerView.setOnApplyWindowInsetsListener { view, insets ->
                         val mPadding = Rect()
 
@@ -271,14 +299,5 @@ class FilesAndFoldersFragment : Fragment() {
                 }
             }
         }
-    }
-
-    @ColorInt
-    fun getThemeColor(
-        context: Context, attributeColor: Int
-    ): Int {
-        val value = TypedValue()
-        context.theme.resolveAttribute(attributeColor, value, true)
-        return value.data
     }
 }
