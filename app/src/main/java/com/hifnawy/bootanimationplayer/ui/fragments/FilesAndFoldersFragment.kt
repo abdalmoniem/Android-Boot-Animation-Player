@@ -1,28 +1,36 @@
 package com.hifnawy.bootanimationplayer.ui.fragments
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.ColorInt
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.hifnawy.bootanimationplayer.R
 import com.hifnawy.bootanimationplayer.adapters.FilesAndFoldersAdapter
 import com.hifnawy.bootanimationplayer.databinding.FragmentFilesAndFoldersBinding
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
 import java.io.File
+
 
 /**
  * [FilesAndFoldersFragment] Entry Fragment of the application.
@@ -45,11 +53,9 @@ class FilesAndFoldersFragment : Fragment() {
     private val startActivityResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult(), ::activityResults)
 
-    private val requestPermissions =
-        registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions(),
-            ::permissionRequestResults
-        )
+    private val requestPermissions = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(), ::permissionRequestResults
+    )
 
     private val openDocument =
         registerForActivityResult(ActivityResultContracts.OpenDocument(), ::openDocumentResult)
@@ -154,13 +160,11 @@ class FilesAndFoldersFragment : Fragment() {
                         context,
                         "${permission.key} is not granted, please grant the permission in settings",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                 }
             } else {
                 Log.d(
-                    "PERMISSIONS",
-                    "${permission.key} : ${
+                    "PERMISSIONS", "${permission.key} : ${
                         when {
                             permission.value -> "granted!"
                             else -> "not granted!"
@@ -205,8 +209,7 @@ class FilesAndFoldersFragment : Fragment() {
             if (Environment.isExternalStorageManager()) {
                 // all permissions are granted
             } else {
-                Toast.makeText(activity, "Manage all files access rejected!", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(activity, "Manage all files access rejected!", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -235,12 +238,47 @@ class FilesAndFoldersFragment : Fragment() {
 
             // populate RecyclerView with zipFiles data
             if (zipFiles.size > 0) {
-                binding!!.noFilesOrFoldersSelectedView.visibility = View.GONE
-                binding!!.foldersRecyclerView.visibility = View.VISIBLE
-                binding!!.foldersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-                binding!!.foldersRecyclerView.adapter =
-                    FilesAndFoldersAdapter(requireContext(), zipFiles)
+                binding?.apply {
+                    noFilesOrFoldersSelectedView.visibility = View.GONE
+                    foldersRecyclerView.visibility = View.VISIBLE
+                    foldersRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                    foldersRecyclerView.adapter = FilesAndFoldersAdapter(requireContext(), zipFiles)
+                    val fastScroller =
+                        FastScrollerBuilder(foldersRecyclerView).useMd2Style().setThumbDrawable(
+                            AppCompatResources.getDrawable(
+                                requireContext(), R.drawable.scrollbar_thumb
+                            )!!
+                        ).build()
+                    foldersRecyclerView.setOnApplyWindowInsetsListener { view, insets ->
+                        val mPadding = Rect()
+
+                        view.setPadding(
+                            mPadding.left + insets.systemWindowInsetLeft,
+                            mPadding.top,
+                            mPadding.right + insets.systemWindowInsetRight,
+                            mPadding.bottom + insets.systemWindowInsetBottom
+                        )
+
+                        fastScroller.setPadding(
+                            insets.systemWindowInsetLeft,
+                            0,
+                            insets.systemWindowInsetRight,
+                            insets.systemWindowInsetBottom
+                        )
+
+                        insets
+                    }
+                }
             }
         }
+    }
+
+    @ColorInt
+    fun getThemeColor(
+        context: Context, attributeColor: Int
+    ): Int {
+        val value = TypedValue()
+        context.theme.resolveAttribute(attributeColor, value, true)
+        return value.data
     }
 }
